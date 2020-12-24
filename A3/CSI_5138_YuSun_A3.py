@@ -207,7 +207,7 @@ def MyLSTM(isMeanPoolinng,stateDim,embedding):
     model.add(embedding)
     if isMeanPoolinng:
         model.add(LSTM(units=stateDim, return_sequences=True))
-        model.add(GlobalAveragePooling1D(data_format='channels_first'))
+        model.add(GlobalAveragePooling1D())
     else:
         model.add(LSTM(units=stateDim))
     model.add(Dense(1,activation='sigmoid'))
@@ -219,7 +219,7 @@ def MyRNN(isMeanPoolinng,stateDim,embedding):
     model.add(embedding)
     if isMeanPoolinng:
         model.add(SimpleRNN(units=stateDim, return_sequences=True))
-        model.add(GlobalAveragePooling1D(data_format='channels_first'))
+        model.add(GlobalAveragePooling1D())
     else:
         model.add(SimpleRNN(units=stateDim))
     model.add(Dense(1,activation='sigmoid'))
@@ -267,19 +267,19 @@ if __name__ == "__main__":
     embedding = EmbeddingLayer(word_index)
     states = [20 ,50, 100, 200, 500]
     for state in states:
-        optimizer = tf.keras.optimizers.Adam(learning_rate=lr_schedule)
-        model = MyRNN(False, state, embedding)
-        model.compile(loss='binary_crossentropy', optimizer=optimizer, metrics=['accuracy'])
-        fit = model.fit(train_data,train_labels,epochs=epochs, verbose=2, validation_data=(test_data,test_labels),batch_size=batch_size,callbacks=[CustomCallback("loss_rnn_"+str(state)+".out")])
-        result = model.evaluate(test_data, test_labels)
-        np.savetxt('result_rnn_'+str(state)+'.out',  np.array(result), fmt=' % .04f')
-
         # optimizer = tf.keras.optimizers.Adam(learning_rate=lr_schedule)
-        # model = MyRNN(True, state, embedding)
+        # model = MyRNN(False, state, embedding)
         # model.compile(loss='binary_crossentropy', optimizer=optimizer, metrics=['accuracy'])
-        # fit = model.fit(train_data,train_labels,epochs=epochs, validation_data=(test_data,test_labels),batch_size=batch_size,callbacks=[CustomCallback("loss_rnn_mean_"+str(state)+".out")])
+        # fit = model.fit(train_data,train_labels,epochs=epochs, verbose=2, validation_data=(test_data,test_labels),batch_size=batch_size,callbacks=[CustomCallback("loss_rnn_"+str(state)+".out")])
         # result = model.evaluate(test_data, test_labels)
-        # np.savetxt('result_rnn_mean'+str(state)+'.out',  np.array(result), fmt=' % .04f')
+        # np.savetxt('result_rnn_'+str(state)+'.out',  np.array(result), fmt=' % .04f')
+
+        optimizer = tf.keras.optimizers.Adam(learning_rate=lr_schedule)
+        model = MyRNN(True, state, embedding)
+        model.compile(loss='binary_crossentropy', optimizer=optimizer, metrics=['accuracy'])
+        fit = model.fit(train_data,train_labels,epochs=epochs, validation_data=(test_data,test_labels),batch_size=batch_size,callbacks=[CustomCallback("loss_rnn_mean_"+str(state)+".out")])
+        result = model.evaluate(test_data, test_labels)
+        np.savetxt('result_rnn_mean'+str(state)+'.out',  np.array(result), fmt=' % .04f')
 
         # optimizer = tf.keras.optimizers.Adam(learning_rate=lr_schedule)
         # model = MyLSTM(False, state, embedding)

@@ -4,7 +4,6 @@ import tensorflow as tf
 import matplotlib.pyplot as plt
 import numpy as np
 import pickle
-from keras_util import convert_drawer_model
 print(tf.__version__)
 np.set_printoptions(suppress=True)
 np.set_printoptions(precision=4)
@@ -36,7 +35,7 @@ def MLP(isDeeper,isDropout):
 def CNN(isDeeper, isBN, kernel_size=3, input_shape=(28, 28, 1)):
     model = tf.keras.models.Sequential()
     if(not isDeeper):
-        model.add(tf.keras.layers.Conv2D(32, (kernel_size, kernel_size), activation='relu', input_shape=input_shape))
+        model.add(tf.keras.layers.Conv2D(32,  kernel_size, activation='relu', input_shape=input_shape))
         if(isBN):
             model.add(tf.keras.layers.BatchNormalization())
         model.add(tf.keras.layers.MaxPooling2D((2, 2), padding="same"))
@@ -87,6 +86,25 @@ def AnotherCNN():
     model.add(tf.keras.layers.Dropout(0.2))
     model.add(tf.keras.layers.Conv2D(128, (3, 3), activation='relu', kernel_initializer='he_uniform', padding='same'))
     model.add(tf.keras.layers.Conv2D(128, (3, 3), activation='relu', kernel_initializer='he_uniform', padding='same'))
+    model.add(tf.keras.layers.MaxPooling2D((2, 2)))
+    model.add(tf.keras.layers.BatchNormalization())
+    model.add(tf.keras.layers.Dropout(0.2))
+    model.add(tf.keras.layers.Flatten())
+    model.add(tf.keras.layers.Dense(256, activation='relu', kernel_initializer='he_uniform'))
+    model.add(tf.keras.layers.Dense(10, activation='softmax'))
+    return model
+
+def AnotherCNN2():
+    model = tf.keras.models.Sequential()
+    model.add(tf.keras.layers.Conv2D(32, 5, activation='relu', kernel_initializer='he_uniform', padding='same', input_shape=(32, 32, 3)))
+    model.add(tf.keras.layers.MaxPooling2D((2, 2)))
+    model.add(tf.keras.layers.BatchNormalization())
+    model.add(tf.keras.layers.Dropout(0.2))
+    model.add(tf.keras.layers.Conv2D(64, 5, activation='relu', kernel_initializer='he_uniform', padding='same'))
+    model.add(tf.keras.layers.MaxPooling2D((2, 2)))
+    model.add(tf.keras.layers.BatchNormalization())
+    model.add(tf.keras.layers.Dropout(0.2))
+    model.add(tf.keras.layers.Conv2D(128, 5, activation='relu', kernel_initializer='he_uniform', padding='same'))
     model.add(tf.keras.layers.MaxPooling2D((2, 2)))
     model.add(tf.keras.layers.BatchNormalization())
     model.add(tf.keras.layers.Dropout(0.2))
@@ -191,169 +209,224 @@ if __name__ == "__main__":
     train_labels = tf.keras.utils.to_categorical(train_labels, 10)
     test_labels = tf.keras.utils.to_categorical(test_labels, 10)
 
-    train_images10 = train_images10 / 255.0
-    test_images10 = test_images10 / 255.0
-    train_labels10 = tf.keras.utils.to_categorical(train_labels10, 10)
-    test_labels10 = tf.keras.utils.to_categorical(test_labels10, 10)
-    train_images10 = train_images10.astype(np.float32).reshape(-1,3072)
-    test_images10 = test_images10.astype(np.float32).reshape(-1,3072)
 
-    model = softmax()
-    model.compile(optimizer = tf.optimizers.Adam(), 
-              loss = 'categorical_crossentropy', metrics=metrics)
-    fit = model.fit(train_images, train_labels, epochs=10)
-    # loss, accuracy, precision, recall,_ = model.evaluate(test_images, test_labels)
-    result = model.evaluate(test_images, test_labels)
-    np.savetxt('softmax_mnist.out',  np.array(result), fmt='%.04f')
 
-    model = MLP(False, False)
-    model.compile(optimizer = tf.optimizers.Adam(), 
-              loss = 'categorical_crossentropy', metrics=metrics)
-    fit = model.fit(train_images, train_labels, epochs=10)
-    result = model.evaluate(test_images, test_labels)
-    np.savetxt('mlp_mnist1.out',  np.array(result), fmt='%.04f')
+    # model = softmax()
+    # model.compile(optimizer = tf.optimizers.Adam(), 
+    #           loss = 'categorical_crossentropy', metrics=metrics)
+    # fit = model.fit(train_images, train_labels, epochs=10)
+    # # loss, accuracy, precision, recall,_ = model.evaluate(test_images, test_labels)
+    # result = model.evaluate(test_images, test_labels)
+    # np.savetxt('softmax_mnist.out',  np.array(result), fmt='%.04f')
 
-    model = MLP(False, True)
-    model.compile(optimizer = tf.optimizers.Adam(), 
-              loss = 'categorical_crossentropy', metrics=metrics)
-    fit = model.fit(train_images, train_labels, epochs=10)
-    result = model.evaluate(test_images, test_labels)
-    np.savetxt('mlp_mnist2.out',  np.array(result), fmt='%.04f')
+    # model = MLP(False, False)
+    # model.compile(optimizer = tf.optimizers.Adam(), 
+    #           loss = 'categorical_crossentropy', metrics=metrics)
+    # fit = model.fit(train_images, train_labels, epochs=10)
+    # result = model.evaluate(test_images, test_labels)
+    # np.savetxt('mlp_mnist1.out',  np.array(result), fmt='%.04f')
 
-    model = MLP(True, False)
-    model.compile(optimizer = tf.optimizers.Adam(), 
-              loss = 'categorical_crossentropy', metrics=metrics)
-    fit = model.fit(train_images, train_labels, epochs=10)
-    result = model.evaluate(test_images, test_labels)
-    np.savetxt('mlp_mnist3.out',  np.array(result), fmt='%.04f')
+    # model = MLP(False, True)
+    # model.compile(optimizer = tf.optimizers.Adam(), 
+    #           loss = 'categorical_crossentropy', metrics=metrics)
+    # fit = model.fit(train_images, train_labels, epochs=10)
+    # result = model.evaluate(test_images, test_labels)
+    # np.savetxt('mlp_mnist2.out',  np.array(result), fmt='%.04f')
 
-    model = MLP(True, True)
-    model.compile(optimizer = tf.optimizers.Adam(), 
-              loss = 'categorical_crossentropy', metrics=metrics)
-    fit = model.fit(train_images, train_labels, epochs=10)
-    result = model.evaluate(test_images, test_labels)
-    np.savetxt('mlp_mnist4.out',  np.array(result), fmt='%.04f')
+    # model = MLP(True, False)
+    # model.compile(optimizer = tf.optimizers.Adam(), 
+    #           loss = 'categorical_crossentropy', metrics=metrics)
+    # fit = model.fit(train_images, train_labels, epochs=10)
+    # result = model.evaluate(test_images, test_labels)
+    # np.savetxt('mlp_mnist3.out',  np.array(result), fmt='%.04f')
+
+    # model = MLP(True, True)
+    # model.compile(optimizer = tf.optimizers.Adam(), 
+    #           loss = 'categorical_crossentropy', metrics=metrics)
+    # fit = model.fit(train_images, train_labels, epochs=10)
+    # result = model.evaluate(test_images, test_labels)
+    # np.savetxt('mlp_mnist4.out',  np.array(result), fmt='%.04f')
 
     train_images = train_images.reshape(-1, 28, 28, 1)
     test_images = test_images.reshape(-1, 28, 28, 1)
 
-    model = CNN(False, False,3)
-    model.compile(optimizer = tf.optimizers.Adam(), 
-              loss = 'categorical_crossentropy', metrics=metrics)
-    fit = model.fit(train_images, train_labels, epochs=10)
-    result = model.evaluate(test_images, test_labels)
-    np.savetxt('cnn_mnist1.out',  np.array(result), fmt='%.04f')
+    # train_labels10 = tf.keras.utils.to_categorical(train_labels10, 10)
+    # test_labels10 = tf.keras.utils.to_categorical(test_labels10, 10)
+    kernel_sizes = [1, 3, 5]
+    # for kernel_size in kernel_sizes:
+        # model = CNN(False, False, kernel_size)
+        # model.compile(optimizer = tf.optimizers.Adam(), 
+        #         loss = 'categorical_crossentropy', metrics=metrics)
+        # fit = model.fit(train_images, train_labels, epochs=10, validation_data=(test_images, test_labels))
+        # result = model.evaluate(test_images, test_labels)
+        # np.savetxt('cnn_mnist3.out',  np.array(result), fmt='%.04f')
 
-    model = CNN(False, True, 3)
-    model.compile(optimizer = tf.optimizers.Adam(), 
-              loss = 'categorical_crossentropy', metrics=metrics)
-    fit = model.fit(train_images, train_labels, epochs=10)
-    result = model.evaluate(test_images, test_labels)
-    np.savetxt('cnn_mnist2.out',  np.array(result), fmt='%.04f')
+        # model = CNN(False, True, kernel_size,input_shape=(32, 32, 3))
+        # model.compile(optimizer = tf.optimizers.Adam(), 
+        #           loss = 'categorical_crossentropy', metrics=metrics)
+        # fit = model.fit(train_images10, train_labels10, epochs=25,batch_size=64,validation_data=(test_images10, test_labels10))
+        # result = model.evaluate(test_images10, test_labels10)
+        # np.savetxt('cnn_cifar.out'+str(kernel_size), np.array(result), fmt='%.04f')
 
-    model = CNN(False, False, 5)
+    model = AnotherCNN()
     model.compile(optimizer = tf.optimizers.Adam(), 
-              loss = 'categorical_crossentropy', metrics=metrics)
-    fit = model.fit(train_images, train_labels, epochs=10)
-    result = model.evaluate(test_images, test_labels)
-    np.savetxt('cnn_mnist3.out',  np.array(result), fmt='%.04f')
+                loss = 'sparse_categorical_crossentropy', metrics=metrics)
+    fit = model.fit(train_images10, train_labels10, epochs=1,batch_size=128,validation_data=(test_images10, test_labels10))
+    y_pred = np.argmax(model.predict(test_images10), axis=-1)
+    from sklearn.metrics import confusion_matrix
 
-    model = CNN(True, False,3)
-    model.compile(optimizer = tf.optimizers.Adam(), 
-              loss = 'categorical_crossentropy', metrics=metrics)
-    fit = model.fit(train_images, train_labels, epochs=10)
-    result = model.evaluate(test_images, test_labels)
-    np.savetxt('cnn_mnist4.out',  np.array(result), fmt='%.04f')
+    con_mat = confusion_matrix(test_labels10, y_pred)
+    con_mat_norm = con_mat.astype('float') / con_mat.sum(axis=1)[:, np.newaxis]     # 归一化
+    con_mat_norm = np.around(con_mat_norm, decimals=2)
 
-    model = CNN(True, True, 3)
-    model.compile(optimizer = tf.optimizers.Adam(), 
-              loss = 'categorical_crossentropy', metrics=metrics)
-    fit = model.fit(train_images, train_labels, epochs=10)
-    result = model.evaluate(test_images, test_labels)
-    np.savetxt('cnn_mnist5.out',  np.array(result), fmt='%.04f')
+    plt.figure(figsize=(8, 8))
+    import seaborn as sns   
+    sns.heatmap(con_mat_norm,  cmap='Blues')
 
-    model = CNN(True, False, 5)
-    model.compile(optimizer = tf.optimizers.Adam(), 
-              loss = 'categorical_crossentropy', metrics=metrics)
-    fit = model.fit(train_images, train_labels, epochs=10)
-    result = model.evaluate(test_images, test_labels)
-    np.savetxt('cnn_mnist6.out',  np.array(result), fmt='%.04f')
-
-
-    model = softmax()
-    model.compile(optimizer = tf.optimizers.Adam(), 
-              loss = 'categorical_crossentropy', metrics=metrics)
-    fit = model.fit(train_images10, train_labels10, epochs=25,batch_size=64)
-    result = model.evaluate(test_images10, test_labels10)
-    np.savetxt('softmax_cifar.out', np.array(result), fmt='%.04f')
-
-    model = MLP(False, False)
-    model.compile(optimizer = tf.optimizers.Adam(), 
-              loss = 'categorical_crossentropy', metrics=metrics)
-    fit = model.fit(train_images10, train_labels10, epochs=25,batch_size=64)
-    result = model.evaluate(test_images10, test_labels10)
-    np.savetxt('mlp_cifar1.out', np.array(result), fmt='%.04f')
-
-    model = MLP(False, True)
-    model.compile(optimizer = tf.optimizers.Adam(), 
-              loss = 'categorical_crossentropy', metrics=metrics)
-    fit = model.fit(train_images10, train_labels10, epochs=25,batch_size=64)
-    result = model.evaluate(test_images10, test_labels10)
-    np.savetxt('mlp_cifar2.out', np.array(result), fmt='%.04f')
-
-    model = MLP(True, False)
-    model.compile(optimizer = tf.optimizers.Adam(), 
-              loss = 'categorical_crossentropy', metrics=metrics)
-    fit = model.fit(train_images10, train_labels10, epochs=25,batch_size=64)
-    result = model.evaluate(test_images10, test_labels10)
-    np.savetxt('mlp_cifar3.out', np.array(result), fmt='%.04f')
-
-    model = MLP(True, True)
-    model.compile(optimizer = tf.optimizers.Adam(), 
-              loss = 'categorical_crossentropy', metrics=metrics)
-    fit = model.fit(train_images10, train_labels10, epochs=50)
-    result = model.evaluate(test_images10, test_labels10)
-    np.savetxt('mlp_cifar4.out', np.array(result), fmt='%.04f')
-    
-    train_images10 = train_images10.reshape(-1, 32, 32, 3)
-    test_images10 = test_images10.reshape(-1, 32, 32, 3)
-    
-    model = CNN(False, False, 3,input_shape=(32, 32, 3))
-    model.compile(optimizer = tf.optimizers.Adam(), 
-              loss = 'categorical_crossentropy', metrics=metrics)
-    fit = model.fit(train_images10, train_labels10, epochs=25,batch_size=64)
+    plt.ylim(10, 0)
+    plt.xlabel('Predicted labels')
+    plt.ylabel('True labels')
     result = model.evaluate(test_images10, test_labels10)
     np.savetxt('cnn_cifar1.out', np.array(result), fmt='%.04f')
 
-    model = CNN(False, True, 3,input_shape=(32, 32, 3))
-    model.compile(optimizer = tf.optimizers.Adam(), 
-              loss = 'categorical_crossentropy', metrics=metrics)
-    fit = model.fit(train_images10, train_labels10, epochs=25,batch_size=64)
-    result = model.evaluate(test_images10, test_labels10)
-    np.savetxt('cnn_cifar2.out', np.array(result), fmt='%.04f')
+    # model = AnotherCNN2()
+    # model.compile(optimizer = tf.optimizers.Adam(), 
+    #             loss = 'sparse_categorical_crossentropy', metrics=metrics)
+    # fit = model.fit(train_images10, train_labels10, epochs=10,batch_size=64,validation_data=(test_images10, test_labels10))
+    # result = model.evaluate(test_images10, test_labels10)
+    # np.savetxt('cnn_cifar2.out', np.array(result), fmt='%.04f')
+    # model = CNN(False, False,3)
+    # model.compile(optimizer = tf.optimizers.Adam(), 
+    #           loss = 'categorical_crossentropy', metrics=metrics)
+    # fit = model.fit(train_images, train_labels, epochs=10)
+    # result = model.evaluate(test_images, test_labels)
+    # np.savetxt('cnn_mnist1.out',  np.array(result), fmt='%.04f')
 
-    model = CNN(False, False, 5,input_shape=(32, 32, 3))
-    model.compile(optimizer = tf.optimizers.Adam(), 
-              loss = 'categorical_crossentropy', metrics=metrics)
-    fit = model.fit(train_images10, train_labels10, epochs=25,batch_size=64)
-    result = model.evaluate(test_images10, test_labels10)
-    np.savetxt('cnn_cifar3.out', np.array(result), fmt='%.04f')
+    # model = CNN(False, False, 5)
+    # model.compile(optimizer = tf.optimizers.Adam(), 
+    #           loss = 'categorical_crossentropy', metrics=metrics)
+    # fit = model.fit(train_images, train_labels, epochs=10)
+    # result = model.evaluate(test_images, test_labels)
+    # np.savetxt('cnn_mnist3.out',  np.array(result), fmt='%.04f')
 
-    model = CNN(True, False, 3,input_shape=(32, 32, 3))
-    model.compile(optimizer = tf.optimizers.Adam(), 
-              loss = 'categorical_crossentropy', metrics=metrics)
-    fit1 = model.fit(train_images10, train_labels10, epochs=25,batch_size=64,validation_data=(test_images10, test_labels10))
-    result = model.evaluate(test_images10, test_labels10)
-    np.savetxt('cnn_cifar4.out', np.array(result), fmt='%.04f')
-    # model = convert_drawer_model(model)
-    # model.save_fig("CNN.svg")
 
-    model = CNN(True, True, 3,input_shape=(32, 32, 3))
-    model.compile(optimizer = tf.optimizers.Adam(), 
-              loss = 'categorical_crossentropy', metrics=metrics)
-    fit2 = model.fit(train_images10, train_labels10, epochs=25,batch_size=64, validation_data=(test_images10, test_labels10))
-    result = model.evaluate(test_images10, test_labels10)
-    np.savetxt('cnn_cifar5.out', np.array(result), fmt='%.04f')
+    # train_images10 = train_images10 / 255.0
+    # test_images10 = test_images10 / 255.0
+    # train_labels10 = tf.keras.utils.to_categorical(train_labels10, 10)
+    # test_labels10 = tf.keras.utils.to_categorical(test_labels10, 10)
+    # train_images10 = train_images10.astype(np.float32).reshape(-1,3072)
+    # test_images10 = test_images10.astype(np.float32).reshape(-1,3072)
+
+    # model = CNN(False, True, 3)
+    # model.compile(optimizer = tf.optimizers.Adam(), 
+    #           loss = 'categorical_crossentropy', metrics=metrics)
+    # fit = model.fit(train_images, train_labels, epochs=10)
+    # result = model.evaluate(test_images, test_labels)
+    # np.savetxt('cnn_mnist2.out',  np.array(result), fmt='%.04f')
+
+    # model = CNN(False, False, 5)
+    # model.compile(optimizer = tf.optimizers.Adam(), 
+    #           loss = 'categorical_crossentropy', metrics=metrics)
+    # fit = model.fit(train_images, train_labels, epochs=10)
+    # result = model.evaluate(test_images, test_labels)
+    # np.savetxt('cnn_mnist3.out',  np.array(result), fmt='%.04f')
+
+    # model = CNN(True, False,3)
+    # model.compile(optimizer = tf.optimizers.Adam(), 
+    #           loss = 'categorical_crossentropy', metrics=metrics)
+    # fit = model.fit(train_images, train_labels, epochs=10)
+    # result = model.evaluate(test_images, test_labels)
+    # np.savetxt('cnn_mnist4.out',  np.array(result), fmt='%.04f')
+
+    # model = CNN(True, True, 3)
+    # model.compile(optimizer = tf.optimizers.Adam(), 
+    #           loss = 'categorical_crossentropy', metrics=metrics)
+    # fit = model.fit(train_images, train_labels, epochs=10)
+    # result = model.evaluate(test_images, test_labels)
+    # np.savetxt('cnn_mnist5.out',  np.array(result), fmt='%.04f')
+
+    # model = CNN(True, False, 5)
+    # model.compile(optimizer = tf.optimizers.Adam(), 
+    #           loss = 'categorical_crossentropy', metrics=metrics)
+    # fit = model.fit(train_images, train_labels, epochs=10)
+    # result = model.evaluate(test_images, test_labels)
+    # np.savetxt('cnn_mnist6.out',  np.array(result), fmt='%.04f')
+
+
+    # # model = softmax()
+    # # model.compile(optimizer = tf.optimizers.Adam(), 
+    # #           loss = 'categorical_crossentropy', metrics=metrics)
+    # # fit = model.fit(train_images10, train_labels10, epochs=25,batch_size=64)
+    # # result = model.evaluate(test_images10, test_labels10)
+    # # np.savetxt('softmax_cifar.out', np.array(result), fmt='%.04f')
+
+    # # model = MLP(False, False)
+    # # model.compile(optimizer = tf.optimizers.Adam(), 
+    # #           loss = 'categorical_crossentropy', metrics=metrics)
+    # # fit = model.fit(train_images10, train_labels10, epochs=25,batch_size=64)
+    # # result = model.evaluate(test_images10, test_labels10)
+    # # np.savetxt('mlp_cifar1.out', np.array(result), fmt='%.04f')
+
+    # # model = MLP(False, True)
+    # # model.compile(optimizer = tf.optimizers.Adam(), 
+    # #           loss = 'categorical_crossentropy', metrics=metrics)
+    # # fit = model.fit(train_images10, train_labels10, epochs=25,batch_size=64)
+    # # result = model.evaluate(test_images10, test_labels10)
+    # # np.savetxt('mlp_cifar2.out', np.array(result), fmt='%.04f')
+
+    # # model = MLP(True, False)
+    # # model.compile(optimizer = tf.optimizers.Adam(), 
+    # #           loss = 'categorical_crossentropy', metrics=metrics)
+    # # fit = model.fit(train_images10, train_labels10, epochs=25,batch_size=64)
+    # # result = model.evaluate(test_images10, test_labels10)
+    # # np.savetxt('mlp_cifar3.out', np.array(result), fmt='%.04f')
+
+    # # model = MLP(True, True)
+    # # model.compile(optimizer = tf.optimizers.Adam(), 
+    # #           loss = 'categorical_crossentropy', metrics=metrics)
+    # # fit = model.fit(train_images10, train_labels10, epochs=50)
+    # # result = model.evaluate(test_images10, test_labels10)
+    # # np.savetxt('mlp_cifar4.out', np.array(result), fmt='%.04f')
+    
+    # train_images10 = train_images10.reshape(-1, 32, 32, 3)
+    # test_images10 = test_images10.reshape(-1, 32, 32, 3)
+    
+    # model = CNN(False, False, 3,input_shape=(32, 32, 3))
+    # model.compile(optimizer = tf.optimizers.Adam(), 
+    #           loss = 'categorical_crossentropy', metrics=metrics)
+    # fit = model.fit(train_images10, train_labels10, epochs=25,batch_size=64)
+    # result = model.evaluate(test_images10, test_labels10)
+    # np.savetxt('cnn_cifar1.out', np.array(result), fmt='%.04f')
+
+    # model = CNN(False, True, 3,input_shape=(32, 32, 3))
+    # model.compile(optimizer = tf.optimizers.Adam(), 
+    #           loss = 'categorical_crossentropy', metrics=metrics)
+    # fit = model.fit(train_images10, train_labels10, epochs=25,batch_size=64)
+    # result = model.evaluate(test_images10, test_labels10)
+    # np.savetxt('cnn_cifar2.out', np.array(result), fmt='%.04f')
+
+    # model = CNN(False, False, 5,input_shape=(32, 32, 3))
+    # model.compile(optimizer = tf.optimizers.Adam(), 
+    #           loss = 'categorical_crossentropy', metrics=metrics)
+    # fit = model.fit(train_images10, train_labels10, epochs=25,batch_size=64)
+    # result = model.evaluate(test_images10, test_labels10)
+    # np.savetxt('cnn_cifar3.out', np.array(result), fmt='%.04f')
+
+    # model = CNN(True, False, 3,input_shape=(32, 32, 3))
+    # model.compile(optimizer = tf.optimizers.Adam(), 
+    #           loss = 'categorical_crossentropy', metrics=metrics)
+    # fit1 = model.fit(train_images10, train_labels10, epochs=25,batch_size=64,validation_data=(test_images10, test_labels10))
+    # result = model.evaluate(test_images10, test_labels10)
+    # np.savetxt('cnn_cifar4.out', np.array(result), fmt='%.04f')
+    # # model = convert_drawer_model(model)
+    # # model.save_fig("CNN.svg")
+
+    # model = CNN(True, True, 3,input_shape=(32, 32, 3))
+    # model.compile(optimizer = tf.optimizers.Adam(), 
+    #           loss = 'categorical_crossentropy', metrics=metrics)
+    # fit2 = model.fit(train_images10, train_labels10, epochs=25,batch_size=64, validation_data=(test_images10, test_labels10))
+    # result = model.evaluate(test_images10, test_labels10)
+    # np.savetxt('cnn_cifar5.out', np.array(result), fmt='%.04f')
 
     # plt.figure()
     # plt.plot(fit2.history['loss'], label='cnn5_accuracy')
@@ -365,11 +438,11 @@ if __name__ == "__main__":
     # plt.ylim([0.5, 1])
     # plt.legend(loc='lower right')
 
-    model = CNN(True, False, 5,input_shape=(32, 32, 3))
-    model.compile(optimizer = tf.optimizers.Adam(), 
-              loss = 'categorical_crossentropy', metrics=metrics)
-    fit = model.fit(train_images10, train_labels10, epochs=25,batch_size=64)
-    result = model.evaluate(test_images10, test_labels10)
-    np.savetxt('cnn_cifar6.out', np.array(result), fmt='%.04f')
+    # model = CNN(True, False, 5,input_shape=(32, 32, 3))
+    # model.compile(optimizer = tf.optimizers.Adam(), 
+    #           loss = 'categorical_crossentropy', metrics=metrics)
+    # fit = model.fit(train_images10, train_labels10, epochs=25,batch_size=64)
+    # result = model.evaluate(test_images10, test_labels10)
+    # np.savetxt('cnn_cifar6.out', np.array(result), fmt='%.04f')
    
     plt.show()
